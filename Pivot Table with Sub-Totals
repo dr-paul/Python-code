@@ -1,0 +1,43 @@
+#Perform a pivot table with sub-totals for each dimension 
+
+#step 1: load libraries
+import pandas as pd
+
+#step 2: load data
+df = pd.read_csv(r'C:\...\FileName.csv')
+
+#step 3: compute all the metrics for 'food' variable split by 'name'
+df1 = pd.pivot_table(df, values=['METRIC1','METRIC2'], index=['DIMENSION1', 'DIMENSION2', 'DIMENSION3'], aggfunc=['count', 'nunique', 'sum', 'min', 'max', 'mean', 'std', 'sem', 'median', 'mad', 'var', 'skew'], margins=True, margins_name="Total")
+
+#step 4: compute all the metrics for totals, just add more as you have more splits
+
+#'DIMENSION1' totals
+df2 = pd.pivot_table(df, values=['METRIC1', 'METRIC2'], index=['DIMENSION1'],aggfunc=['count', 'nunique', 'sum', 'min', 'max', 'mean', 'std', 'sem', 'median', 'mad', 'var', 'skew'], margins=True, margins_name="Total")
+df2 = df2.rename_axis("DIMENSION1")
+df2.index = pd.MultiIndex.from_arrays([df2.index + '_total', len(df2.index) * ['']])
+df2 = df2.assign(DIMENSION2='', DIMENSION3='').set_index(['DIMENSION2','DIMENSION3'], append=True)
+df2 = df2.reset_index().set_index(['DIMENSION1', 'DIMENSION2', 'DIMENSION3'])
+
+#'DIMENSION2' totals
+df3 = pd.pivot_table(df, values=['METRIC1', 'METRIC2'], index=['DIMENSION2'],aggfunc=['count', 'nunique', 'sum', 'min', 'max', 'mean', 'std', 'sem', 'median', 'mad', 'var', 'skew'], margins=True, margins_name="Total")
+df3 = df3.rename_axis("DIMENSION2")
+df3.index = pd.MultiIndex.from_arrays([df3.index + '_total', len(df3.index) * ['']])
+df3 = df3.assign(DIMENSION1='', DIMENSION3='').set_index(['DIMENSION1','DIMENSION3'], append=True)
+df3 = df3.reset_index().set_index(['DIMENSION1', 'DIMENSION2', 'DIMENSION3'])
+
+#'DIMENSION3' totals
+df4 = pd.pivot_table(df, values=['METRIC1', 'METRIC2'], index=['DIMENSION3'],aggfunc=['count', 'nunique', 'sum', 'min', 'max', 'mean', 'std', 'sem', 'median', 'mad', 'var', 'skew'], margins=True, margins_name="Total")
+df4 = df4.rename_axis("DIMENSION3")
+df4.index = pd.MultiIndex.from_arrays([df4.index + '_total', len(df4.index) * ['']])
+df4 = df4.assign(DIMENSION1='', DIMENSION2='').set_index(['DIMENSION1','DIMENSION2'], append=True)
+df4 = df4.reset_index().set_index(['DIMENSION1', 'DIMENSION2', 'DIMENSION3'])
+
+#step 5: merge the data tables together
+df_total = pd.concat([df1, df2, df3, df4]).sort_index()
+
+#step 6: stack by metric
+df_total = df_total.stack()
+df_total = df_total.drop('level_1', axis=1)
+
+#step 6: export to Excel
+df_total.to_csv(r'C:\...\Output.csv')
