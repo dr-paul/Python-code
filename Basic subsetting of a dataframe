@@ -1,0 +1,22 @@
+#step 1: load libraries
+import pandas as pd
+
+#step 2: load data
+df = pd.read_csv(r'C:\...\File Name.csv')
+
+#step 3: subsetting
+
+#subset by column names (just 'arrive year' and 'arrive month')
+df1 = df[['arrive_year', 'arrive_month']]
+
+#subset by criteria (if arrive year is 2020)
+df1 = df[df.arrive_year == 2020]
+
+#subset by criteria (if arrive year is not 2020)
+df1 = df[df.arrive_year != 2020]
+
+#subset by range (if arrive month is between 5 & 9)
+df1 = df[(df.arrive_month >=5) & (df.arrive_month <=9)]
+
+#subset by multiple criteria (if customer is a Member and from NSW)
+df1 = df[(df.customer_type == 'Member') & (df.state == 'NSW')]
