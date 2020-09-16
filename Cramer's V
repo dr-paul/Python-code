@@ -3,6 +3,8 @@ import pandas as pd
 import scipy.stats as ss
 import numpy as np
 
+#I WOULD TRUST THE R VERSION MORE THAN THIS AS VALUES ARE A LOT HIGHER AND CAN GO BEYOND 1
+
 #step 2: load data
 df = pd.read_csv(r'C:\...\Data\File Name.csv')
 
