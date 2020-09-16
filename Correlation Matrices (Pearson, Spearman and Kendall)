@@ -1,0 +1,64 @@
+#step 1: load libraries
+import pandas as pd
+from scipy.stats import pearsonr, spearmanr, kendalltau
+
+#step 2: load data
+df = pd.read_csv(r'C:\...\Data\File Name.csv')
+
+#specific a subset of data you want to run a correlation matrix on
+df1 = df[['VAR1', 'VAR2', 'VAR3', 'VAR4', 'VAR5']] 
+
+#step 3: define the function to calculate p-values:
+#pearson
+
+def calculate_pearson_pvalues(df):
+    df = df.dropna()._get_numeric_data()
+    dfcols = pd.DataFrame(columns=df.columns)
+    pvalues = dfcols.transpose().join(dfcols, how='outer')
+    for r in df.columns:
+        for c in df.columns:
+            pvalues[r][c] = round(pearsonr(df[r], df[c])[1], 8)
+    return pvalues
+
+
+#spearman
+
+def calculate_spearman_pvalues(df):
+    df = df.dropna()._get_numeric_data()
+    dfcols = pd.DataFrame(columns=df.columns)
+    pvalues = dfcols.transpose().join(dfcols, how='outer')
+    for r in df.columns:
+        for c in df.columns:
+            pvalues[r][c] = round(spearmanr(df[r], df[c])[1], 8)
+    return pvalues
+
+
+#kendall
+
+def calculate_kendall_pvalues(df):
+    df = df.dropna()._get_numeric_data()
+    dfcols = pd.DataFrame(columns=df.columns)
+    pvalues = dfcols.transpose().join(dfcols, how='outer')
+    for r in df.columns:
+        for c in df.columns:
+            pvalues[r][c] = round(kendalltau(df[r], df[c])[1], 8)
+    return pvalues
+
+
+#step 4: run correlation matrices
+corrMatrix1 = df1.corr(method='pearson')
+corrMatrix2 = df1.corr(method='spearman')
+corrMatrix3 = df1.corr(method='kendall')
+
+#step 5: run pvalue matrices
+pMatrix1 = calculate_pearson_pvalues(df1)
+pMatrix2 = calculate_spearman_pvalues(df1)
+pMatrix3 = calculate_kendall_pvalues(df1)
+
+#step 6: export to Excel
+corrMatrix1.to_csv(r'C:\...\Data\CorrMatrix_Pearson_correlation.csv')
+corrMatrix2.to_csv(r'C:\...\Data\CorrMatrix_Spearman_correlation.csv')
+corrMatrix3.to_csv(r'C:\...\Data\CorrMatrix_Kendall_correlation.csv')
+pMatrix1.to_csv(r'C:\...\Data\CorrMatrix_Pearson_pvalue.csv')
+pMatrix2.to_csv(r'C:\...\Data\CorrMatrix_Spearman_pvalue.csv')
+pMatrix3.to_csv(r'C:\...\Data\CorrMatrix_Kendall_pvalue.csv')
