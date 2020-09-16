@@ -1,0 +1,32 @@
+#step 1: load libraries
+import pandas as pd
+import scipy.stats as ss
+import numpy as np
+
+#step 2: load data
+df = pd.read_csv(r'C:\...\Data\File Name.csv')
+
+#step 3: build function for Cramer's V calculation
+def cramers_corrected_stat(confusion_matrix):
+    """ calculate Cramers V statistic for categorial-categorial association.
+        uses correction from Bergsma and Wicher, 
+        Journal of the Korean Statistical Society 42 (2013): 323-328
+    """
+    chi2 = ss.chi2_contingency(confusion_matrix)[0]
+    n = confusion_matrix.sum()
+    phi2 = chi2/n
+    r,k = confusion_matrix.shape
+    phi2corr = max(0 or phi2 - ((k-1)*(r-1))/(n-1))                     #switched the , to or here to make it work
+    rcorr = r - ((r-1)**2)/(n-1)
+    kcorr = k - ((k-1)**2)/(n-1)
+    return np.sqrt(phi2corr / min( (kcorr-1).all(), (rcorr-1).all()))   #added the .all() here to make it work
+
+
+#step 4: run Cramer's V on data
+confusion_matrix = pd.crosstab(df['VAR_A'],df['VAR_B'])       #first variable is rows, second variable is columns
+cramer = cramers_corrected_stat(confusion_matrix)
+
+#step 5: export to Excel
+confusion_matrix.to_csv(r'C:\...\Data\CramersV_Output1_crosstab.csv')
+cramer = [float(cramer)]
+np.savetxt(r'C:\...\Data\CramersV_Output2_cramersv.csv', np.array(cramer), fmt='%.20f')
